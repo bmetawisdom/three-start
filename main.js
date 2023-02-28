@@ -58,7 +58,7 @@ let experience = {
   },
 
   _createPathStrings: function (filename) {
-    const basePath = "./skybox/images/";
+    const basePath = "./skybox/";
     const baseFilename = basePath + filename;
     const fileType = ".jpg";
     const sides = ["FRONT", "BACK", "UP", "DOWN", "LEFT", "RIGHT"];
