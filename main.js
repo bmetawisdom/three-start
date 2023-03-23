@@ -10,8 +10,8 @@ let experience = {
   camera: new THREE.PerspectiveCamera(
     45,
     window.innerWidth / window.innerHeight,
-    0.1,
-    30000
+    0.01,
+    1000
   ),
   colors: [
     // an array of some of my fave colors for randomly coloring objects
@@ -49,7 +49,11 @@ let experience = {
     experience.renderer.setSize(experience.dims.width, experience.dims.height);
     experience.renderer.shadowMap.enabled = true;
     experience.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    experience.renderer.setClearColor(0x000000, 0);
+    experience.renderer.setClearColor(0x000000, 1);
+
+    // let's move the camera off 0,0,0
+    experience.camera.position.set(2.5, 3, 20);
+    experience.camera.lookAt(new THREE.Vector3());
 
     // make it foggy, now
     experience.scene.fog = new THREE.Fog(0xcccccc, 1000, 10000);
@@ -57,53 +61,12 @@ let experience = {
     experience.scene.add(experience.camera);
   },
 
-  _createPathStrings: function (filename) {
-    const basePath = "./skybox/";
-    const baseFilename = basePath + filename;
-    const fileType = ".jpg";
-    const sides = ["FRONT", "BACK", "UP", "DOWN", "LEFT", "RIGHT"];
-    const pathStrings = sides.map((side) => {
-      return baseFilename + "_" + side + fileType;
-    });
-
-    return pathStrings;
-  },
-
-  _createMaterialArray: function (filename) {
-    const skyboxImagePaths = experience._createPathStrings(filename);
-    const materialArray = skyboxImagePaths.map((image) => {
-      let texture = experience.texture.load(image);
-      return new THREE.MeshBasicMaterial({
-        map: texture,
-        side: THREE.BackSide,
-      });
-    });
-    return materialArray;
-  },
-
   // create all lights and objects for your scene
   create: function () {
-    // make a skybox for the scene
-    // const materialArray = experience._createMaterialArray("ocean"); // load forest skybox
-    // add a gigantic skybox cube to the scene
-    experience.cube = new THREE.Mesh(
-      new THREE.BoxGeometry(10000, 10000, 10000),
-      // materialArray
-      new THREE.MeshBasicMaterial({
-        color:
-          experience.colors[
-            Math.floor(Math.random() * experience.colors.length)
-          ],
-        side: THREE.BackSide,
-      })
-    );
-    // add the skybox to the scene
-    experience.scene.add(experience.cube);
-
     // ambient light
-    let ambi = new THREE.AmbientLight("white", 0.65);
-    ambi.position.set(0, 1000, 0);
-    experience.scene.add(ambi);
+    // let ambi = new THREE.AmbientLight("white", 0.65);
+    // ambi.position.set(0, 1000, 0);
+    // experience.scene.add(ambi);
 
     // directional light
     let dirLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -120,31 +83,29 @@ let experience = {
     experience.camera.add(point);
 
     // add a spotlight to point at monster
-    let spot = new THREE.SpotLight("gold", 0.75);
-    spot.castShadow = true;
-    spot.position.set(0, 100, 0);
-    experience.scene.add(spot);
+    // let spot = new THREE.SpotLight(0xffffff, 0.75);
+    // spot.castShadow = true;
+    // spot.position.set(0, 100, 0);
+    // experience.scene.add(spot);
 
-    // debug only obvs
-    let lightHelper = new THREE.SpotLightHelper(spot);
-    experience.scene.add(lightHelper);
+    // // debug only obvs
+    // let lightHelper = new THREE.SpotLightHelper(spot);
+    // experience.scene.add(lightHelper);
 
     // create a floor
     // let txtr = experience.texture.load("./textures/concrete3-albedo.png");
     // txtr.wrapS = THREE.RepeatWrapping;
     // txtr.wrapT = THREE.RepeatWrapping;
     // txtr.repeat.set(4, 4);
-    let geo = new THREE.PlaneGeometry(100, 100, 10, 10);
-    let mat = new THREE.MeshBasicMaterial({
+    let geo = new THREE.PlaneGeometry(10, 10, 10, 10);
+    let mat = new THREE.MeshStandardMaterial({
       // map: txtr,
       wireframe: false,
       color: "silver",
     });
     experience.floor = new THREE.Mesh(geo, mat);
     experience.floor.receiveShadow = true;
-    experience.floor.rotation.x = Math.PI / 2;
-    experience.floor.rotation.y = Math.PI;
-    experience.floor.rotation.z = Math.PI / 2;
+    experience.floor.rotation.x = -Math.PI / 2;
     experience.floor.position.y = -5;
     experience.scene.add(experience.floor);
 
@@ -203,7 +164,6 @@ let experience = {
     experience.orbit.update();
 
     // update objects
-    experience.cube.rotation.set(elapsedTime, elapsedTime, elapsedTime);
 
     // do the render
     experience.renderer.render(experience.scene, experience.camera);
